@@ -1,0 +1,5 @@
+Instructions
+
+Copy script files to /etc/systemd/system/
+
+cp /path/to/file/my_systemd_script.service /etc/systemd/system/my_systemd_script.service

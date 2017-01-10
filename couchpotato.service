@@ -1,0 +1,13 @@
+[Unit]
+Description=CouchPotato Service
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/git/CouchPotatoServer
+ExecStart=/usr/bin/python CouchPotato.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

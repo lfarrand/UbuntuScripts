@@ -1,0 +1,13 @@
+[Unit]
+Description=SABnzbd Service
+After=multi-user.target
+
+[Service]
+Type=idle
+WorkingDirectory=/git/sabnzbd
+ExecStart=/usr/bin/python SABnzbd.py
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
