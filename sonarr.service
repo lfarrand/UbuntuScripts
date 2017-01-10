@@ -1,13 +1,15 @@
 [Unit]
-Description=SABnzbd Service
-After=multi-user.target
+Description=Sonarr Service
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-Type=idle
-WorkingDirectory=/git/sabnzbd
-ExecStart=/usr/bin/python SABnzbd.py
+User=lee
+Group=lee
+Type=forking
+ExecStart=/usr/bin/mono /apps/sonarr/NzbDrone.exe /data=/apps/data/.sonarr
 Restart=always
-RestartSec=3
+RestartSec=15
 
 [Install]
 WantedBy=multi-user.target

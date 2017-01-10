@@ -1,11 +1,14 @@
 [Unit]
 Description=SABnzbd Service
-After=multi-user.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-Type=idle
-WorkingDirectory=/git/sabnzbd
-ExecStart=/usr/bin/python SABnzbd.py
+User=lee
+Group=lee
+Type=forking
+ExecStart=/usr/bin/python /git/sabnzbd/SABnzbd.py --config-file /etc/sabnzbd/sabnzbd.ini --logging 1 --daemon --pid /var/run/sabnzbd/
+PIDFile=/var/run/sabnzbd/sabnzbd-9090.pid
 Restart=always
 RestartSec=3
 

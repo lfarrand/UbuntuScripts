@@ -1,11 +1,14 @@
 [Unit]
 Description=CouchPotato Service
-After=multi-user.target
+Wants=network-online.target
+After=network-online.target
 
 [Service]
-Type=idle
-WorkingDirectory=/git/CouchPotatoServer
-ExecStart=/usr/bin/python CouchPotato.py
+User=lee
+Group=lee
+Type=forking
+ExecStart=/usr/bin/python /git/CouchPotatoServer/CouchPotato.py --daemon --pid_file /var/run/couchpotato/couchpotato.pid --data_dir /var/couchpotato --config_file /etc/couchpotato/couchpotato.ini
+PIDFile=/var/run/couchpotato/couchpotato.pid
 Restart=always
 RestartSec=3
 
