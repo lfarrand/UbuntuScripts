@@ -1,15 +1,18 @@
 Instructions
+------------
 
-Copy script files to /etc/systemd/system/
+sudo cp couchpotato.service /etc/systemd/system/couchpotato.service
+sudo cp sabnzbd.service /etc/systemd/system/sabnzbd.service
+sudo cp sonarr.service /etc/systemd/system/sonarr.service
 
-sudo cp /path/to/file/my_systemd_script.service /etc/systemd/system/my_systemd_script.service
+sudo systemctl enable couchpotato.service
+sudo systemctl enable sabnzbd.service
+sudo systemctl enable sonarr.service
 
-systemctl reboot
+sudo systemctl reboot
 
-systemctl enable couchpotato.service
-systemctl enable sabnzbd.service
-systemctl enable sonarr.service
 
-systemctl restart couchpotato
-systemctl restart sabnzbd
-systemctl restart sonarr
+If necessary to restart services, use:
+sudo systemctl restart couchpotato.service
+sudo systemctl restart sabnzbd.service
+sudo systemctl restart sonarr.service
