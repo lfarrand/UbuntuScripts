@@ -9,10 +9,22 @@ sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
 sudo systemctl enable sonarr.service
 
-sudo systemctl reboot
+systemctl daemon-reload
 
 
 If necessary to restart services, use:
 sudo systemctl restart couchpotato.service
 sudo systemctl restart sabnzbd.service
 sudo systemctl restart sonarr.service
+
+To test restarting automatically, use:
+sudo systemctl restart couchpotato.service
+ps -ef|grep couchpotato
+kill <psid>
+watch "ps -ef|grep couchpotato"
+
+Log file:
+journalctl -xe
+journalctl -b (log files from current boot)
+journalctl --since "2015-01-10" --until "2015-01-11 03:00"
+journalctl --since "1 hour ago"
