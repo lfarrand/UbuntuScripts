@@ -11,6 +11,8 @@ sudo systemctl enable sonarr.service
 
 systemctl daemon-reload
 
+sudo systemctl status couchpotato.service
+sudo systemctl status sonarr.service
 
 If necessary to restart services, use:
 sudo systemctl restart couchpotato.service

@@ -1,5 +1,5 @@
 [Unit]
-Description=Sonarr Service
+Description=Deluge Bittorrent Client Daemon
 Wants=network-online.target
 After=network-online.target
 
@@ -7,10 +7,10 @@ After=network-online.target
 User=lee
 Group=lee
 Type=simple
-ExecStart=/usr/bin/mono /opt/NzbDrone/NzbDrone.exe /data=/var/sonarr
-Restart=always
-RestartSec=15
-TimeoutStopSec=20
+ExecStart=/usr/bin/deluged -d
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=300
 
 [Install]
 WantedBy=multi-user.target
