@@ -4,6 +4,8 @@ Instructions
 sudo cp couchpotato.service /etc/systemd/system/couchpotato.service
 sudo cp sabnzbd.service /etc/systemd/system/sabnzbd.service
 sudo cp sonarr.service /etc/systemd/system/sonarr.service
+sudo cp deluged.service /etc/systemd/system/deluged.service
+sudo cp deluge-web.service /etc/systemd/system/deluge-web.service
 
 sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
