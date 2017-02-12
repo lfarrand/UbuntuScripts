@@ -47,6 +47,7 @@ LOG_FILE=""
 NAME=""
 SLEEP=0
 TIMESTAMP=0
+CURRENT_DATE=$(date +%Y%m%d-%H%M%S)
 
 # This is a cach of all the groups the user is a member of. We use it with
 # canwrite() later.
@@ -101,31 +102,31 @@ name() {
 
   # Exit file
   if [ -z "$EXIT_FILE" ] ; then
-    if canwrite "/var/run/${USER}/${NAME}.exit" ; then
-      EXIT_FILE="/var/run/${USER}/${NAME}.exit"
+    if canwrite "/var/run/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.exit" ; then
+      EXIT_FILE="/var/run/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.exit"
     else
-      mkdir -p "/var/tmp/${USER}"
-      EXIT_FILE="/var/tmp/${USER}/${NAME}.exit"
+      mkdir -p "/var/tmp/${USER}/${NAME}"
+      EXIT_FILE="/var/tmp/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.exit"
     fi
   fi
   
   # Lock File
   if [ -z "$LOCK_FILE" ] ; then
-    if canwrite "/var/run/${USER}/${NAME}.lock" ; then
-      LOCK_FILE="/var/run/${USER}/${NAME}.lock"
+    if canwrite "/var/run/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.lock" ; then
+      LOCK_FILE="/var/run/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.lock"
     else
-      mkdir -p "/var/tmp/${USER}"
-      LOCK_FILE="/var/tmp/${USER}/${NAME}.lock"
+      mkdir -p "/var/tmp/${USER}/${NAME}"
+      LOCK_FILE="/var/tmp/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.lock"
     fi
   fi
   
   # Log File
   if [ -z "$LOG_FILE" ] ; then
-      if canwrite "/var/run/${USER}/${NAME}.lock" ; then
-      LOG_FILE="/var/log/${USER}/${NAME}.log"
+    if canwrite "/var/log/${USER}/${NAME}.${CURRENT_DATE}.log" ; then
+      LOG_FILE="/var/log/${USER}/${NAME}.${CURRENT_DATE}.log"
     else
-      mkdir -p "/var/tmp/${USER}"
-      LOG_FILE="/var/tmp/${USER}/${NAME}.log"
+      mkdir -p "/var/tmp/${USER}/${NAME}"
+      LOG_FILE="/var/tmp/${USER}/${NAME}.${CURRENT_DATE}.log"
     fi
   fi
 }
