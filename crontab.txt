@@ -1,0 +1,1 @@
+*/1 * * * * /usr/local/bin/cron_helper -c -n moviecopier -i -s -t /git/UbuntuScripts/moviecopier.sh
