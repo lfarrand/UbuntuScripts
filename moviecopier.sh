@@ -1,0 +1,2 @@
+filebot -script fn:amc --output "/nfs/diskstation/movies" --action move -non-strict "/etc/sabnzbd/Downloads/complete/movies" --log-file /etc/filebot/amc.log --def excludeList=/etc/filebot/amc.txt --conflict auto --def plex=127.0.0.1:UGsPcVjH8fwDVkPRB8Sq --def clean=y --def movieFormat="{n} ({y})/{n} ({y}){' CD'+pi}" --def ut_label=movie -no-xattr
+echo "Movie copier script ran at: $(date -Iseconds)" >> /git/UbuntuScripts/moviecopier.log
