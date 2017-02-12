@@ -122,11 +122,11 @@ name() {
   
   # Log File
   if [ -z "$LOG_FILE" ] ; then
-    if canwrite "/var/log/${USER}/${NAME}.${CURRENT_DATE}.log" ; then
-      LOG_FILE="/var/log/${USER}/${NAME}.${CURRENT_DATE}.log"
+    if canwrite "/var/log/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.log" ; then
+      LOG_FILE="/var/log/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.log"
     else
       mkdir -p "/var/tmp/${USER}/${NAME}"
-      LOG_FILE="/var/tmp/${USER}/${NAME}.${CURRENT_DATE}.log"
+      LOG_FILE="/var/tmp/${USER}/${NAME}/${NAME}.${CURRENT_DATE}.log"
     fi
   fi
 }
