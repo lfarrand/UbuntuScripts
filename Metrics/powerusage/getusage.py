@@ -102,7 +102,7 @@ def gatherStatsAndPost(ip, port):
         sysinfojson = json.loads(sysinforesult)
         alias = sysinfojson['system']['get_sysinfo']['alias']
 
-	print("Got usage for " + ip + ":" + port + "(" + alias + ")")
+	# print("Got usage for " + ip + ":" + str(port) + "(" + alias + ")")
 
         usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
         usagejson = json.loads(usageresult)
@@ -132,10 +132,11 @@ def gatherStatsAndPost(ip, port):
         client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
         client.write_points(json_body)
     except socket.error, v:
-        print("Skipping " + ip + ":" + str(port) + " due to error")
+        print("Skipping " + ip + ":" + str(port) + " due to error " + str(v[0]))
 	errorcode=v[0]
-    	if errorcode==errno.ECONNREFUSED:
+	if errorcode==errno.ECONNREFUSED:
         	print "Connection Refused"
+
 
 def main():
 	print "Checking power usage at " + time.strftime('%c')
@@ -147,7 +148,7 @@ def printError(failure):
     print(str(failure))
 
 
-timeout = 1.0
+timeout = 10.0
 
 lc = LoopingCall(main)
 lc.start(timeout).addErrback(printError)
