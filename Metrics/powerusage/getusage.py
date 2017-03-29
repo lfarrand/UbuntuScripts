@@ -1,10 +1,16 @@
 import sys
+import errno
 from influxdb import InfluxDBClient
 import socket
-import win_inet_pton
+# import win_inet_pton
 import argparse
 import json
+import time
 from datetime import datetime
+from twisted.internet.task import LoopingCall
+from twisted.internet import reactor
+from twisted.internet import defer
+from twisted.web import client
 
 version = 0.1
 powerPlugAddresses = [
@@ -78,25 +84,25 @@ def decrypt(string):
 
 
 def query(ip, port, querycmd):
-    try:
-        sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock_tcp.connect((ip, port))
-        sock_tcp.send(encrypt(querycmd))
-        data = sock_tcp.recv(2048)
-        queryresult = decrypt(data[4:])
-        sock_tcp.close()
+    sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock_tcp.connect((ip, port))
+    sock_tcp.send(encrypt(querycmd))
+    data = sock_tcp.recv(2048)
+    queryresult = decrypt(data[4:])
+    sock_tcp.close()
 
-        print "Sent:     ", querycmd
-        print "Received: ", queryresult
-        return queryresult
-    except socket.error:
-        quit("Cound not connect to host " + ip + ":" + str(port))
+        # print "Sent:     ", querycmd
+        # print "Received: ", queryresult
+    return queryresult
 
 
 def gatherStatsAndPost(ip, port):
+    try:
         sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
         sysinfojson = json.loads(sysinforesult)
         alias = sysinfojson['system']['get_sysinfo']['alias']
+
+	print("Got usage for " + ip + ":" + port + "(" + alias + ")")
 
         usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
         usagejson = json.loads(usageresult)
@@ -125,7 +131,25 @@ def gatherStatsAndPost(ip, port):
 
         client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
         client.write_points(json_body)
+    except socket.error, v:
+        print("Skipping " + ip + ":" + str(port) + " due to error")
+	errorcode=v[0]
+    	if errorcode==errno.ECONNREFUSED:
+        	print "Connection Refused"
+
+def main():
+	print "Checking power usage at " + time.strftime('%c')
+	for powerPlugAddress in powerPlugAddresses:
+		gatherStatsAndPost(powerPlugAddress[1], port)
 
 
-for powerPlugAddress in powerPlugAddresses:
-    gatherStatsAndPost(powerPlugAddress[1], port)
+def printError(failure):
+    print(str(failure))
+
+
+timeout = 1.0
+
+lc = LoopingCall(main)
+lc.start(timeout).addErrback(printError)
+
+reactor.run()
