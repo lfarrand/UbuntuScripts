@@ -1,4 +1,3 @@
-import sys
 import errno
 from influxdb import InfluxDBClient
 import socket
@@ -9,8 +8,6 @@ import time
 from datetime import datetime
 from twisted.internet.task import LoopingCall
 from twisted.internet import reactor
-from twisted.internet import defer
-from twisted.web import client
 
 version = 0.1
 powerPlugAddresses = [
@@ -19,10 +16,9 @@ powerPlugAddresses = [
     ['TV', '192.168.0.122'],
     ['Study', '192.168.0.140'],
     ['Dishwasher', '192.168.0.142'],
-    ['Washing Machine', '192.168.0.173'],
+    ['Washing Machine', '192.168.0.172'],
     ['Under Stairs Cupboard', '192.168.0.177']
 ]
-
 
 parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Monitoring Client v" + str(version))
 parser.add_argument("-is", "--influxserver", metavar="<influxserver>", required=True, help="Influx Server")
@@ -46,6 +42,7 @@ def validIP(ip):
         parser.error("Invalid IP Address.")
     return ip
 
+
 # Predefined Smart Plug Commands
 # For a full list of commands, consult tplink_commands.txt
 commands = {'info': '{"system":{"get_sysinfo":{}}}',
@@ -60,6 +57,7 @@ commands = {'info': '{"system":{"get_sysinfo":{}}}',
             'reboot': '{"system":{"reboot":{"delay":1}}}',
             'reset': '{"system":{"reset":{"delay":1}}}'
             }
+
 
 # Encryption and Decryption of TP-Link Smart Home Protocol
 # XOR Autokey Cipher with starting key = 171
@@ -91,18 +89,19 @@ def query(ip, port, querycmd):
     queryresult = decrypt(data[4:])
     sock_tcp.close()
 
-        # print "Sent:     ", querycmd
-        # print "Received: ", queryresult
+    # print "Sent:     ", querycmd
+    # print "Received: ", queryresult
     return queryresult
 
 
 def gatherStatsAndPost(ip, port):
     try:
+        # print 'Getting usage for {}:{}'.format(ip, port)
         sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
         sysinfojson = json.loads(sysinforesult)
         alias = sysinfojson['system']['get_sysinfo']['alias']
 
-	# print("Got usage for " + ip + ":" + str(port) + "(" + alias + ")")
+        # print 'Got usage for {}:{} ({})'.format(ip, port, alias)
 
         usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
         usagejson = json.loads(usageresult)
@@ -132,16 +131,12 @@ def gatherStatsAndPost(ip, port):
         client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
         client.write_points(json_body)
     except socket.error, v:
-        print("Skipping " + ip + ":" + str(port) + " due to error " + str(v[0]))
-	errorcode=v[0]
-	if errorcode==errno.ECONNREFUSED:
-        	print "Connection Refused"
-
+        print 'Skipping {}:{} due to error \'{}\''.format(ip, port, v.strerror, v.message)
 
 def main():
-	print "Checking power usage at " + time.strftime('%c')
-	for powerPlugAddress in powerPlugAddresses:
-		gatherStatsAndPost(powerPlugAddress[1], port)
+    print 'Checking power usage at {}'.format(time.strftime('%c'))
+    for powerPlugAddress in powerPlugAddresses:
+        gatherStatsAndPost(powerPlugAddress[1], port)
 
 
 def printError(failure):
