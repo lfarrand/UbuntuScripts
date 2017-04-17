@@ -6,10 +6,12 @@ sudo cp sabnzbd.service /etc/systemd/system/sabnzbd.service
 sudo cp sonarr.service /etc/systemd/system/sonarr.service
 sudo cp deluged.service /etc/systemd/system/deluged.service
 sudo cp deluge-web.service /etc/systemd/system/deluge-web.service
+sudo cp powermetrics.service /etc/systemd/system/powermetrics.service
 
 sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
 sudo systemctl enable sonarr.service
+sudo systemctl enable powermetrics.service
 
 systemctl daemon-reload
 
