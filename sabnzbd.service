@@ -7,8 +7,7 @@ After=network-online.target
 User=lee
 Group=lee
 Type=forking
-ExecStart=/usr/bin/python /git/sabnzbd/SABnzbd.py --config-file /etc/sabnzbd/sabnzbd.ini --logging 1 --daemon --pid /var/run/sabnzbd/
-PIDFile=/var/run/sabnzbd/sabnzbd-8080.pid
+ExecStart=/usr/bin/python /home/lee/git/sabnzbd/SABnzbd.py --config-file /etc/sabnzbd/sabnzbd.ini --logging 1 --daemon
 Restart=always
 RestartSec=3
 
