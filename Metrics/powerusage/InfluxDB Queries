@@ -1,0 +1,38 @@
+SELECT sum("KWHr") as "daily_KWHr" FROM
+(
+    SELECT sum("median_watts_per_min") / 1000 as "KWHr" FROM
+    (
+        SELECT MEDIAN("watts") as "median_watts_per_min" FROM "telegraf"."autogen"."power_usage" WHERE "alias"='Dishwasher' GROUP BY time(1m)
+    ) WHERE time > now() - 4w GROUP BY time(1h)
+)
+WHERE time > now() - 4w GROUP BY time(1d)
+
+
+
+SELECT sum("daily_KWHr") as "monthly_KWHr" FROM
+(
+    SELECT sum("KWHr") as "daily_KWHr" FROM
+    (
+        SELECT sum("median_watts_per_min") / 1000 as "KWHr" FROM
+        (
+            SELECT MEDIAN("watts") as "median_watts_per_min" FROM "telegraf"."autogen"."power_usage" WHERE "alias"='Dishwasher' GROUP BY time(1m)
+        ) WHERE time > now() - 4w GROUP BY time(1h)
+    )
+    WHERE time > now() - 4w GROUP BY time(1d)
+)
+WHERE time > now() - 4w GROUP BY time(4w), "alias"
+
+
+
+SELECT sum("daily_KWHr") as "monthly_KWHr" FROM
+(
+    SELECT sum("KWHr") as "daily_KWHr" FROM
+    (
+        SELECT sum("median_watts_per_min") / 1000 as "KWHr" FROM
+        (
+            SELECT MEDIAN("watts") as "median_watts_per_min" FROM "telegraf"."autogen"."power_usage" GROUP BY time(1m)
+        ) WHERE time > now() - 4w GROUP BY time(1h)
+    )
+    WHERE time > now() - 4w GROUP BY time(1d)
+)
+WHERE time > now() - 4w GROUP BY time(4w), "alias"
