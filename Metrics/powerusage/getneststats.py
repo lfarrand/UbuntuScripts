@@ -32,20 +32,29 @@ timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
 for structure in napi.structures:
     for device in structure.thermostats:
+
+        isHeating = 0
+        if device.hvac_state == "heating":
+            isHeating = 1
+
         json_body = [
             {
                 "measurement": "temp_humidity",
                 "tags": {
                     "device": device.name,
-                    "where": device.where
+                    "where": device.where,
+                    "mode": device.mode
                 },
                 "time": timenow,
                 "fields": {
                     "temperature": device.temperature,
-                    "humidity": device.humidity
+                    "humidity": device.humidity,
+                    "heating": isHeating
                 }
             }
         ]
 
-        client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
-        client.write_points(json_body)
+        print(json_body)
+
+        # client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
+        # client.write_points(json_body)
