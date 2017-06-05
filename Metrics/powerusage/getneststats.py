@@ -54,7 +54,7 @@ for structure in napi.structures:
             }
         ]
 
-        print(json_body)
+        # print(json_body)
 
-        # client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
-        # client.write_points(json_body)
+        client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
+        client.write_points(json_body)
