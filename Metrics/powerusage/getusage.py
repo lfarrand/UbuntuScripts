@@ -17,7 +17,9 @@ powerPlugAddresses = [
     ['Study', '192.168.0.140'],
     ['Dishwasher', '192.168.0.142'],
     ['Washing Machine', '192.168.0.172'],
-    ['Under Stairs Cupboard', '192.168.0.177']
+    ['Under Stairs Cupboard', '192.168.0.177'],
+    ['Quooker Tap', '192.168.0.247'],
+    ['Fridge', '192.168.0.119']
 ]
 
 parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Monitoring Client v" + str(version))
@@ -94,7 +96,7 @@ def query(ip, port, querycmd):
     return queryresult
 
 
-def gatherStatsAndPost(ip, port):
+def gatherStatsAndPost(ip, port, timenow):
     try:
         # print 'Getting usage for {}:{}'.format(ip, port)
         sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
@@ -110,7 +112,7 @@ def gatherStatsAndPost(ip, port):
         watts = float(usagejson['emeter']['get_realtime']['power'])
         total = float(usagejson['emeter']['get_realtime']['total'])
 
-        timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        # timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
         json_body = [
             {
@@ -134,9 +136,10 @@ def gatherStatsAndPost(ip, port):
         print 'Skipping {}:{} due to error \'{}\''.format(ip, port, v.strerror, v.message)
 
 def main():
-    print 'Checking power usage at {}'.format(time.strftime('%c'))
+    timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    print 'Checking power usage at {}'.format(timenow)
     for powerPlugAddress in powerPlugAddresses:
-        gatherStatsAndPost(powerPlugAddress[1], port)
+        gatherStatsAndPost(powerPlugAddress[1], port, timenow)
 
 
 def printError(failure):
