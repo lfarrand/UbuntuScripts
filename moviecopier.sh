@@ -9,4 +9,5 @@ filebot -script fn:amc \
 --def clean=y \
 --def movieFormat="{n} ({y})/{n} ({y}){' CD'+pi}" \
 --def ut_label=movie \
---def "ignore=_UNPACK"
+--def "ignore=_UNPACK" \
+--def "exec=chmod 777 -R '{folder}'"
