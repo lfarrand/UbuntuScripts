@@ -1,5 +1,5 @@
 filebot -script fn:amc \
--non-strict "/etc/sabnzbd/Downloads/complete/movies" \
+-non-strict "/mnt/hdd/sabnzbd" \
 -no-xattr \
 --output "/mnt/nfs/diskstation/movies" \
 --action move \
