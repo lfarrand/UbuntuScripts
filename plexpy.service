@@ -1,0 +1,15 @@
+[Unit]
+Description=PlexPy Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lee
+Group=lee
+Type=forking
+ExecStart=/usr/bin/python /home/lee/git/plexpy/PlexPy.py --quiet --daemon --nolaunch --config /opt/plexpy/config.ini --datadir /opt/plexpy
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

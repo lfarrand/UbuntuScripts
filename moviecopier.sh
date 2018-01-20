@@ -1,5 +1,5 @@
 filebot -script fn:amc \
--non-strict "/etc/sabnzbd/Downloads/complete/movies" \
+-non-strict "/mnt/hdd/sabnzbd" \
 -no-xattr \
 --output "/mnt/nfs/diskstation/movies" \
 --action move \
@@ -7,6 +7,7 @@ filebot -script fn:amc \
 --def excludeList=/etc/filebot/amc.txt \
 --def plex=127.0.0.1:zqtrKvEQunUnyr5vHn36 \
 --def clean=y \
---def movieFormat="{n} ({y})/{n} ({y}){' CD'+pi}" \
+--def movieFormat="{n} ({y})/{n} ({y}){' CD'+pi} {source}.{vf}.{vc}{'-'+group}/{fn}" \
 --def ut_label=movie \
---def "ignore=_UNPACK"
+--def "ignore=_UNPACK" \
+--def "exec=chmod 777 -R '{folder}'"
