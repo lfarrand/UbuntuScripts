@@ -19,7 +19,8 @@ powerPlugAddresses = [
     ['Washing Machine', '192.168.0.172'],
     ['Under Stairs Cupboard', '192.168.0.177'],
     ['Quooker Tap', '192.168.0.247'],
-    ['Fridge', '192.168.0.119']
+    ['Fridge', '192.168.0.119'],
+    ['Miner','192.168.0.102']
 ]
 
 parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Monitoring Client v" + str(version))
