@@ -1,10 +1,7 @@
-import errno
 from influxdb import InfluxDBClient
 import socket
-# import win_inet_pton
 import argparse
 import json
-import time
 from datetime import datetime
 from twisted.internet.task import LoopingCall
 from twisted.internet import reactor
@@ -20,7 +17,7 @@ powerPlugAddresses = [
     ['Under Stairs Cupboard', '192.168.0.177'],
     ['Quooker Tap', '192.168.0.247'],
     ['Fridge', '192.168.0.119'],
-    ['Miner','192.168.0.102']
+    ['Miner', '192.168.0.102']
 ]
 
 parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Monitoring Client v" + str(version))
@@ -114,6 +111,25 @@ def gatherStatsAndPost(ip, port, timenow):
         total = float(usagejson['emeter']['get_realtime']['total'])
 
         # timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        today = datetime.today()
+
+        historicusageresult = query(ip, port, '{"emeter": {"get_daystat": {"month": ' + str(today.month) + ', "year": ' + str(today.year) + '}}}')
+        historicusagejson = json.loads(historicusageresult)
+        historiccount = int(len(historicusagejson['emeter']['get_daystat']['day_list']))
+        totaltoday = float(historicusagejson['emeter']['get_daystat']['day_list'][historiccount-1]['energy'])
+
+        historicjson_body = [
+            {
+                "measurement": "Energy",
+                "tags": {
+                    "alias": alias
+                },
+                "time": timenow,
+                "fields": {
+                    "kWh": totaltoday
+                }
+            }
+        ]
 
         json_body = [
             {
@@ -133,6 +149,8 @@ def gatherStatsAndPost(ip, port, timenow):
 
         client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
         client.write_points(json_body)
+        client.write_points(historicjson_body)
+
     except socket.error, v:
         print 'Skipping {}:{} due to error \'{}\''.format(ip, port, v.strerror, v.message)
 
