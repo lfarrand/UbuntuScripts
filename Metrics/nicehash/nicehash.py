@@ -116,8 +116,12 @@ try:
     for key, value in algoProf.items():
         json_body[0]['fields'][key] = value['profitability']
 
+    logger.debug(json.dumps(json_body))
+
     client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
     client.write_points(json_body)
+
+    logger.debug("Posted stats to InfluxDB")
 
 except Exception as e:
     logger.exception("Something bad happened. Error: {}".format(e.message))
