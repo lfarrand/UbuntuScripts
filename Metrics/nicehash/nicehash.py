@@ -19,6 +19,9 @@ try:
     logger = logging.getLogger(__name__)
     logger.setLevel(LEVEL)
 
+    if __name__ == "__main__":
+        logging.info("Begin")
+
     # Create file size limit and file name
     handler = logging.handlers.RotatingFileHandler('debug.log', maxBytes=2000000, backupCount=10)
     handler.setLevel(LEVEL)
@@ -42,7 +45,6 @@ try:
     influxdb = args.influxdb
     influxuser = args.influxuser
     influxpass = args.influxpass
-    port = 55555
 
     def queryStats():
         import json, requests
