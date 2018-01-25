@@ -7,7 +7,7 @@ After=network-online.target
 User=lee
 Group=lee
 Type=forking
-ExecStart=/usr/bin/python /git/UbuntuScripts/Metrics/powerusage/getusage.py -is metricshub -idb telegraf -iusr lee -ipass Hhey9huk
+ExecStart=/usr/bin/python /git/UbuntuScripts/Metrics/powerusage/getusage.py -is metricshub -idb metrics -iusr lee -ipass Hhey9huk
 Restart=always
 RestartSec=3
 
