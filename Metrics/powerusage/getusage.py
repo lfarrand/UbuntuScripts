@@ -120,7 +120,7 @@ def gatherStatsAndPost(ip, port, timenow):
 
         historicjson_body = [
             {
-                "measurement": "Energy",
+                "measurement": "energy",
                 "tags": {
                     "alias": alias
                 },

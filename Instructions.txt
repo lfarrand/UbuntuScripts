@@ -22,6 +22,7 @@ If necessary to restart services, use:
 sudo systemctl restart couchpotato.service
 sudo systemctl restart sabnzbd.service
 sudo systemctl restart sonarr.service
+sudo systemctl restart powermetrics.service
 
 To test restarting automatically, use:
 sudo systemctl restart couchpotato.service
