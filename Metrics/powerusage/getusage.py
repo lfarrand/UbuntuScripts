@@ -2,15 +2,16 @@ from influxdb import InfluxDBClient
 import socket
 import argparse
 import json
-from datetime import datetime, time
+from datetime import datetime
+import time
 
-version = 0.1
+version = 1.0
 powerPlugAddresses = [
-    ['Garage', '192.168.0.239'],
-    ['Tumble Dryer', '192.168.0.199'],
+    ['Garage', '192.168.0.215'],
+    ['Tumble Dryer', '192.168.0.244'],
     ['TV', '192.168.0.122'],
     ['Study', '192.168.0.140'],
-    ['Dishwasher', '192.168.0.142'],
+    ['Dishwasher', '192.168.0.189'],
     ['Washing Machine', '192.168.0.172'],
     ['Under Stairs Cupboard', '192.168.0.177'],
     ['Quooker Tap', '192.168.0.247'],
@@ -88,6 +89,9 @@ def query(ip, port, querycmd):
     queryresult = decrypt(data[4:])
     sock_tcp.close()
 
+    del sock_tcp
+    del data
+
     # print "Sent:     ", querycmd
     # print "Received: ", queryresult
     return queryresult
@@ -95,12 +99,12 @@ def query(ip, port, querycmd):
 
 def gatherStatsAndPost(ip, port, timenow):
     try:
-        # print 'Getting usage for {}:{}'.format(ip, port)
+        print 'Getting usage for {}:{}'.format(ip, port)
         sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
         sysinfojson = json.loads(sysinforesult)
         alias = sysinfojson['system']['get_sysinfo']['alias']
 
-        # print 'Got usage for {}:{} ({})'.format(ip, port, alias)
+        print 'Got usage for {}:{} ({})'.format(ip, port, alias)
 
         usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
         usagejson = json.loads(usageresult)
@@ -147,8 +151,20 @@ def gatherStatsAndPost(ip, port, timenow):
         ]
 
         client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
+
+        print 'Sending instant power usage for {} to influx {}:{}'.format(alias, influxserver, 8086)
         client.write_points(json_body)
+
+        print 'Sending historic power usage for {} to influx'.format(alias)
         client.write_points(historicjson_body)
+
+        del usagejson
+        del usageresult
+        del sysinfojson
+        del sysinforesult
+        del json_body
+        del historicjson_body
+        del client
 
     except socket.error, v:
         print 'Skipping {}:{} due to error: {}'.format(ip, port, v.message)
@@ -163,4 +179,5 @@ while True:
     print 'Checking power usage at {}'.format(timenow)
     for powerPlugAddress in powerPlugAddresses:
         gatherStatsAndPost(powerPlugAddress[1], port, timenow)
+    print 'Finished checking power usage'
     time.sleep(10)

@@ -1,0 +1,15 @@
+[Unit]
+Description=Hardware Stats Usage Service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lee
+Group=lee
+Type=forking
+ExecStart=/usr/bin/python /git/UbuntuScripts/Metrics/hwmonitoring/gethwstats.py -is metricshub -idb metrics -iusr lee -ipass Hhey9huk
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
