@@ -1,8 +1,16 @@
-from influxdb import InfluxDBClient
 import argparse
-from datetime import datetime
-import nest
+import getpass
+import os
 import time
+from datetime import datetime
+
+import nest
+from influxdb import InfluxDBClient
+
+print getpass.getuser()
+
+print "Env thinks the user is [%s]" % (os.getlogin())
+print "Effective user is [%s]" % (getpass.getuser())
 
 version = 1.0
 parser = argparse.ArgumentParser(description="Nest Monitoring Client v" + str(version))

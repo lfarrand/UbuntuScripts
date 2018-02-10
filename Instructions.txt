@@ -7,16 +7,22 @@ sudo cp sonarr.service /etc/systemd/system/sonarr.service
 sudo cp deluged.service /etc/systemd/system/deluged.service
 sudo cp deluge-web.service /etc/systemd/system/deluge-web.service
 sudo cp powermetrics.service /etc/systemd/system/powermetrics.service
+sudo cp neststats.service /etc/systemd/system/neststats.service
+sudo cp hardwarestats.service /etc/systemd/system/hardwarestats.service
 
 sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
 sudo systemctl enable sonarr.service
 sudo systemctl enable powermetrics.service
+sudo systemctl enable neststats.service
+sudo systemctl enable hardwarestats.service
 
 systemctl daemon-reload
 
 sudo systemctl status couchpotato.service
 sudo systemctl status sonarr.service
+sudo systemctl status neststats.service
+sudo systemctl status hardwarestats.service
 
 If necessary to restart services, use:
 sudo systemctl restart couchpotato.service
