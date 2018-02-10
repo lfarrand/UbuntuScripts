@@ -2,9 +2,7 @@ from influxdb import InfluxDBClient
 import socket
 import argparse
 import json
-from datetime import datetime
-from twisted.internet.task import LoopingCall
-from twisted.internet import reactor
+from datetime import datetime, time
 
 version = 0.1
 powerPlugAddresses = [
@@ -83,6 +81,7 @@ def decrypt(string):
 
 def query(ip, port, querycmd):
     sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock_tcp.settimeout(10.0)
     sock_tcp.connect((ip, port))
     sock_tcp.send(encrypt(querycmd))
     data = sock_tcp.recv(2048)
@@ -152,22 +151,16 @@ def gatherStatsAndPost(ip, port, timenow):
         client.write_points(historicjson_body)
 
     except socket.error, v:
-        print 'Skipping {}:{} due to error \'{}\''.format(ip, port, v.strerror, v.message)
-
-def main():
-    timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-    print 'Checking power usage at {}'.format(timenow)
-    for powerPlugAddress in powerPlugAddresses:
-        gatherStatsAndPost(powerPlugAddress[1], port, timenow)
+        print 'Skipping {}:{} due to error: {}'.format(ip, port, v.message)
 
 
 def printError(failure):
     print(str(failure))
 
 
-timeout = 10.0
-
-lc = LoopingCall(main)
-lc.start(timeout).addErrback(printError)
-
-reactor.run()
+while True:
+    timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+    print 'Checking power usage at {}'.format(timenow)
+    for powerPlugAddress in powerPlugAddresses:
+        gatherStatsAndPost(powerPlugAddress[1], port, timenow)
+    time.sleep(10)
