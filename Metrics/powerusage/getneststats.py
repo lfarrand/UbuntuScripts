@@ -1,15 +1,11 @@
 import argparse
 import getpass
-import os
 import time
 from datetime import datetime
 
 import nest
 from influxdb import InfluxDBClient
 
-print getpass.getuser()
-
-print "Env thinks the user is [%s]" % (os.getlogin())
 print "Effective user is [%s]" % (getpass.getuser())
 
 version = 1.0
@@ -37,6 +33,11 @@ while True:
     napi = nest.Nest(client_id=client_id, client_secret=client_secret, access_token_cache_file=access_token_cache_file)
 
     if napi.authorization_required:
+        print('Go to ' + napi.authorize_url + ' to authorize, then enter PIN below')
+        pin = input("PIN: ")
+        napi.request_token(pin)
+
+    if napi.authorization_required is None:
         print('Go to ' + napi.authorize_url + ' to authorize, then enter PIN below')
         pin = input("PIN: ")
         napi.request_token(pin)
