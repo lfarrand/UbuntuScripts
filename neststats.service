@@ -7,7 +7,8 @@ After=network-online.target
 User=lee
 Group=lee
 Type=forking
-ExecStart=cd /git/UbuntuScripts/Metrics/powerusage && /usr/bin/python /git/UbuntuScripts/Metrics/powerusage/getneststats.py -is metricshub -idb metrics -iusr lee -ipass Hhey9huk
+WorkingDirectory=/git/UbuntuScripts/Metrics/powerusage
+ExecStart=/usr/bin/python /git/UbuntuScripts/Metrics/powerusage/getneststats.py -is metricshub -idb metrics -iusr lee -ipass Hhey9huk
 Restart=always
 RestartSec=3
 
