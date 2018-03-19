@@ -37,11 +37,6 @@ while True:
         pin = input("PIN: ")
         napi.request_token(pin)
 
-    if napi.authorization_required is None:
-        print('Go to ' + napi.authorize_url + ' to authorize, then enter PIN below')
-        pin = input("PIN: ")
-        napi.request_token(pin)
-
     for structure in napi.structures:
         for device in structure.thermostats:
 
