@@ -4,10 +4,9 @@ import argparse
 import json
 import requests
 from datetime import datetime
-from twisted.internet.task import LoopingCall
-from twisted.internet import reactor
+import time
 
-version = 0.1
+version = 1.0
 remoteServerAddresses = [
     ['Miner', '192.168.0.245']
 ]
@@ -53,26 +52,28 @@ def gatherStatsAndPost(host, ip, port):
         client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
         client.write_points(json_body)
 
+        del json_body
+        del jsonObject
+        del response
+        del client
+
     except requests.exceptions.RequestException as e:
         print 'Skipping {}:{} due to error \'{}\''.format(ip, port, e.strerror, e.message)
     except:
         e = sys.exc_info()[0]
         print 'Skipping {}:{} due to error \'{}\''.format(ip, port, e.strerror, e.message)
 
-def main():
-    timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-    print 'Getting hardware stats at {}'.format(timenow)
-    for address in remoteServerAddresses:
-        gatherStatsAndPost(address[0], address[1], port)
-
 
 def printError(failure):
     print(str(failure))
 
 
-timeout = 10.0
+while True:
+    timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
 
-lc = LoopingCall(main)
-lc.start(timeout).addErrback(printError)
+    for address in remoteServerAddresses:
+        print 'Getting hardware stats for {} at {}'.format(address[0], timenow)
+        gatherStatsAndPost(address[0], address[1], port)
 
-reactor.run()
+    print 'Finished checking hardware stats'
+    time.sleep(10)
