@@ -15,6 +15,7 @@ sudo systemctl enable powermetrics.service
 
 systemctl daemon-reload
 
+sudo systemctl status sabnzbd.service
 sudo systemctl status couchpotato.service
 sudo systemctl status sonarr.service
 

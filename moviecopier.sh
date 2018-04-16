@@ -1,11 +1,11 @@
 filebot -script fn:amc \
--non-strict "/mnt/hdd/sabnzbd/movies" \
+-non-strict "/downloads/sabnzbd/complete/movies" \
 -no-xattr \
 --output "/mnt/nfs/diskstation/movies" \
 --action move \
 --conflict auto \
 --def excludeList=/etc/filebot/amc.txt \
---def plex=127.0.0.1:zqtrKvEQunUnyr5vHn36 \
+--def plex=127.0.0.1:q6U1i4TbWEGktRihNMUT \
 --def clean=y \
 --def movieFormat="{n} ({y})/{n} ({y}){' CD'+pi} {source}.{vf}.{vc}{'-'+group}/{fn}" \
 --def ut_label=movie \
