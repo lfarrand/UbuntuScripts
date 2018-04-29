@@ -101,7 +101,7 @@ def query(ip, port, querycmd):
 
 
 def recvall(sock):
-    BUFF_SIZE = 8192
+    BUFF_SIZE = 8
     data = b''
     while True:
         part = sock.recv(BUFF_SIZE)
