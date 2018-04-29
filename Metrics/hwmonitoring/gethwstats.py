@@ -2,13 +2,16 @@ import sys
 from influxdb import InfluxDBClient
 import argparse
 import json
-import requests
 from datetime import datetime
 import time
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 version = 1.0
 remoteServerAddresses = [
-    ['Miner', '192.168.0.245']
+    ['Miner', '192.168.0.245'],
+    ['Miner2', '192.168.0.154']
 ]
 
 parser = argparse.ArgumentParser(description="Hardware Stats Poller v" + str(version))
@@ -25,9 +28,29 @@ influxpass = args.influxpass
 port = 55555
 
 
+def requests_retry_session(
+    retries=3,
+    backoff_factor=0.3,
+    status_forcelist=(500, 502, 504),
+    session=None,
+):
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
+
+
 def gatherStatsAndPost(host, ip, port):
     try:
-        response = requests.get("http://{}:{}".format(ip, port))
+        response = requests_retry_session().get("http://{}:{}".format(ip, port))
 
         jsonObject = json.loads(response.content)
 

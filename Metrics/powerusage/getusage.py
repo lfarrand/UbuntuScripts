@@ -81,20 +81,35 @@ def decrypt(string):
 
 
 def query(ip, port, querycmd):
-    sock_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock_tcp.settimeout(10.0)
-    sock_tcp.connect((ip, port))
-    sock_tcp.send(encrypt(querycmd))
-    data = sock_tcp.recv(2048)
-    queryresult = decrypt(data[4:])
-    sock_tcp.close()
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    # sock.settimeout(10.0)
+    sock.connect((ip, port))
+    sock.send(encrypt(querycmd))
 
-    del sock_tcp
+    data = recvall(sock)
+
+    queryresult = decrypt(data[4:])
+
+    sock.close()
+
+    del sock
     del data
 
     # print "Sent:     ", querycmd
     # print "Received: ", queryresult
     return queryresult
+
+
+def recvall(sock):
+    BUFF_SIZE = 8192
+    data = b''
+    while True:
+        part = sock.recv(BUFF_SIZE)
+        data += part
+        if len(part) < BUFF_SIZE:
+            # either 0 or end of data
+            break
+    return data
 
 
 def gatherStatsAndPost(ip, port, timenow):
@@ -103,68 +118,98 @@ def gatherStatsAndPost(ip, port, timenow):
         sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
         sysinfojson = json.loads(sysinforesult)
         alias = sysinfojson['system']['get_sysinfo']['alias']
+        hwver = sysinfojson['system']['get_sysinfo']['hw_ver']
+        swver = sysinfojson['system']['get_sysinfo']['sw_ver']
 
         print 'Got usage for {}:{} ({})'.format(ip, port, alias)
 
         usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
         usagejson = json.loads(usageresult)
-        amps = float(usagejson['emeter']['get_realtime']['current'])
-        volts = float(usagejson['emeter']['get_realtime']['voltage'])
-        watts = float(usagejson['emeter']['get_realtime']['power'])
-        total = float(usagejson['emeter']['get_realtime']['total'])
+        errorcode = usagejson['emeter']['get_realtime']['err_code']
 
-        # timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-        today = datetime.today()
+        if(errorcode == 0):
+            amps = float(usagejson['emeter']['get_realtime']['current'])
+            volts = float(usagejson['emeter']['get_realtime']['voltage'])
+            watts = float(usagejson['emeter']['get_realtime']['power'])
+            total = float(usagejson['emeter']['get_realtime']['total'])
 
-        historicusageresult = query(ip, port, '{"emeter": {"get_daystat": {"month": ' + str(today.month) + ', "year": ' + str(today.year) + '}}}')
-        historicusagejson = json.loads(historicusageresult)
-        historiccount = int(len(historicusagejson['emeter']['get_daystat']['day_list']))
-        totaltoday = float(historicusagejson['emeter']['get_daystat']['day_list'][historiccount-1]['energy'])
+            # timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+            today = datetime.today()
 
-        historicjson_body = [
-            {
-                "measurement": "energy",
-                "tags": {
-                    "alias": alias
-                },
-                "time": timenow,
-                "fields": {
-                    "kWh": totaltoday
+            json_body = [
+                {
+                    "measurement": "power_usage",
+                    "tags": {
+                        "alias": alias,
+                        "hwver": hwver,
+                        "swver": swver
+                    },
+                    "time": timenow,
+                    "fields": {
+                        "amps": amps,
+                        "volts": volts,
+                        "watts": watts,
+                        "total": total
+                    }
                 }
-            }
-        ]
+            ]
 
-        json_body = [
-            {
-                "measurement": "power_usage",
-                "tags": {
-                    "alias": alias
-                },
-                "time": timenow,
-                "fields": {
-                    "amps": amps,
-                    "volts": volts,
-                    "watts": watts,
-                    "total": total
-                }
-            }
-        ]
+            client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
 
-        client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
+            print 'Sending instant power usage for {} to influx {}:{}'.format(alias, influxserver, 8086)
+            client.write_points(json_body)
 
-        print 'Sending instant power usage for {} to influx {}:{}'.format(alias, influxserver, 8086)
-        client.write_points(json_body)
+            count = 0
+            while count < 20:
+                historicusageresult = query(ip, port, '{"emeter": {"get_daystat": {"month": ' + str(today.month) + ', "year": ' + str(today.year) + '}}}')
 
-        print 'Sending historic power usage for {} to influx'.format(alias)
-        client.write_points(historicjson_body)
+                # if(historicusageresult.endswith("err_")):
+                #     historicusageresult = historicusageresult.replace("err_", "err_code\":0}}}")
+                # elif("],\"err_code\":0}}}" not in historicusageresult):
+                #     historicusageresult += "],\"err_code\":0}}}"
+
+                count += 1
+
+                try:
+                    historicusagejson = json.loads(historicusageresult)
+
+                    historiccount = int(len(historicusagejson['emeter']['get_daystat']['day_list']))
+                    totaltoday = float(
+                        historicusagejson['emeter']['get_daystat']['day_list'][historiccount - 1]['energy'])
+
+                    historicjson_body = [
+                        {
+                            "measurement": "energy",
+                            "tags": {
+                                "alias": alias,
+                                "hwver": hwver,
+                                "swver": swver
+                            },
+                            "time": timenow,
+                            "fields": {
+                                "kWh": totaltoday
+                            }
+                        }
+                    ]
+
+                    print 'Sending historic power usage for {} to influx'.format(alias)
+                    client.write_points(historicjson_body)
+
+                    del historicjson_body
+
+                    break
+                except ValueError, v:
+                    print 'Error querying historic usage for {}. Count:{}. Error: {}'.format(alias, count, v.message)
+
+            del json_body
+            del client
+        else:
+            print 'Error checking power usage for {}. Error code was {}.'.format(alias, errorcode)
 
         del usagejson
         del usageresult
         del sysinfojson
         del sysinforesult
-        del json_body
-        del historicjson_body
-        del client
 
     except socket.error, v:
         print 'Skipping {}:{} due to error: {}'.format(ip, port, v.message)
