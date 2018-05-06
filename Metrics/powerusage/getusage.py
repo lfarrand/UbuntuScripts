@@ -81,24 +81,30 @@ def decrypt(string):
 
 
 def query(ip, port, querycmd):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # sock.settimeout(10.0)
-    sock.connect((ip, port))
-    sock.send(encrypt(querycmd))
+    count = 0
+    while count < 20:
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            # sock.settimeout(10.0)
+            sock.connect((ip, port))
+            sock.send(encrypt(querycmd))
 
-    data = recvall(sock)
+            data = recvall(sock)
 
-    queryresult = decrypt(data[4:])
+            queryresult = decrypt(data[4:])
 
-    sock.close()
+            sock.close()
 
-    del sock
-    del data
+            del sock
+            del data
 
-    # print "Sent:     ", querycmd
-    # print "Received: ", queryresult
-    return queryresult
+            return queryresult
 
+        except socket.error, v:
+            count += 1
+            print "Retry count {}".format(count)
+
+    raise Exception("Unable to connect to {}:{} after {} attempts.").format(ip, port, count)
 
 def recvall(sock):
     BUFF_SIZE = 8
@@ -113,106 +119,96 @@ def recvall(sock):
 
 
 def gatherStatsAndPost(ip, port, timenow):
-    try:
-        print 'Getting usage for {}:{}'.format(ip, port)
-        sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
-        sysinfojson = json.loads(sysinforesult)
-        alias = sysinfojson['system']['get_sysinfo']['alias']
-        hwver = sysinfojson['system']['get_sysinfo']['hw_ver']
-        swver = sysinfojson['system']['get_sysinfo']['sw_ver']
+    print 'Getting usage for {}:{}'.format(ip, port)
 
-        print 'Got usage for {}:{} ({})'.format(ip, port, alias)
+    sysinforesult = query(ip, port, '{"system":{"get_sysinfo":{}}}')
 
-        usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
-        usagejson = json.loads(usageresult)
-        errorcode = usagejson['emeter']['get_realtime']['err_code']
+    sysinfojson = json.loads(sysinforesult)
+    alias = sysinfojson['system']['get_sysinfo']['alias']
+    hwver = sysinfojson['system']['get_sysinfo']['hw_ver']
+    swver = sysinfojson['system']['get_sysinfo']['sw_ver']
 
-        if(errorcode == 0):
-            amps = float(usagejson['emeter']['get_realtime']['current'])
-            volts = float(usagejson['emeter']['get_realtime']['voltage'])
-            watts = float(usagejson['emeter']['get_realtime']['power'])
-            total = float(usagejson['emeter']['get_realtime']['total'])
+    print 'Got usage for {}:{} ({})'.format(ip, port, alias)
 
-            # timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
-            today = datetime.today()
+    usageresult = query(ip, port, '{"emeter":{"get_realtime":{}}}')
 
-            json_body = [
-                {
-                    "measurement": "power_usage",
-                    "tags": {
-                        "alias": alias,
-                        "hwver": hwver,
-                        "swver": swver
-                    },
-                    "time": timenow,
-                    "fields": {
-                        "amps": amps,
-                        "volts": volts,
-                        "watts": watts,
-                        "total": total
-                    }
+    usagejson = json.loads(usageresult)
+    errorcode = usagejson['emeter']['get_realtime']['err_code']
+
+    if errorcode == 0:
+        amps = float(usagejson['emeter']['get_realtime']['current'])
+        volts = float(usagejson['emeter']['get_realtime']['voltage'])
+        watts = float(usagejson['emeter']['get_realtime']['power'])
+        total = float(usagejson['emeter']['get_realtime']['total'])
+
+        # timenow = datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ")
+        today = datetime.today()
+
+        json_body = [
+            {
+                "measurement": "power_usage",
+                "tags": {
+                    "alias": alias,
+                    "hwver": hwver,
+                    "swver": swver
+                },
+                "time": timenow,
+                "fields": {
+                    "amps": amps,
+                    "volts": volts,
+                    "watts": watts,
+                    "total": total
                 }
-            ]
+            }
+        ]
 
-            client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
+        client = InfluxDBClient(influxserver, 8086, influxuser, influxpass, influxdb)
 
-            print 'Sending instant power usage for {} to influx {}:{}'.format(alias, influxserver, 8086)
-            client.write_points(json_body)
+        print 'Sending instant power usage for {} to influx {}:{}'.format(alias, influxserver, 8086)
+        client.write_points(json_body)
 
-            count = 0
-            while count < 20:
-                historicusageresult = query(ip, port, '{"emeter": {"get_daystat": {"month": ' + str(today.month) + ', "year": ' + str(today.year) + '}}}')
+        historicusageresult = query(ip, port, '{"emeter": {"get_daystat": {"month": ' + str(today.month) + ', "year": ' + str(today.year) + '}}}')
 
-                # if(historicusageresult.endswith("err_")):
-                #     historicusageresult = historicusageresult.replace("err_", "err_code\":0}}}")
-                # elif("],\"err_code\":0}}}" not in historicusageresult):
-                #     historicusageresult += "],\"err_code\":0}}}"
+        # if(historicusageresult.endswith("err_")):
+        #     historicusageresult = historicusageresult.replace("err_", "err_code\":0}}}")
+        # elif("],\"err_code\":0}}}" not in historicusageresult):
+        #     historicusageresult += "],\"err_code\":0}}}"
 
-                count += 1
+        historicusagejson = json.loads(historicusageresult)
 
-                try:
-                    historicusagejson = json.loads(historicusageresult)
+        historiccount = int(len(historicusagejson['emeter']['get_daystat']['day_list']))
+        totaltoday = float(
+            historicusagejson['emeter']['get_daystat']['day_list'][historiccount - 1]['energy'])
 
-                    historiccount = int(len(historicusagejson['emeter']['get_daystat']['day_list']))
-                    totaltoday = float(
-                        historicusagejson['emeter']['get_daystat']['day_list'][historiccount - 1]['energy'])
+        historicjson_body = [
+            {
+                "measurement": "energy",
+                "tags": {
+                    "alias": alias,
+                    "hwver": hwver,
+                    "swver": swver
+                },
+                "time": timenow,
+                "fields": {
+                    "kWh": totaltoday
+                }
+            }
+        ]
 
-                    historicjson_body = [
-                        {
-                            "measurement": "energy",
-                            "tags": {
-                                "alias": alias,
-                                "hwver": hwver,
-                                "swver": swver
-                            },
-                            "time": timenow,
-                            "fields": {
-                                "kWh": totaltoday
-                            }
-                        }
-                    ]
+        print 'Sending historic power usage for {} to influx'.format(alias)
+        client.write_points(historicjson_body)
 
-                    print 'Sending historic power usage for {} to influx'.format(alias)
-                    client.write_points(historicjson_body)
+        del historicjson_body
 
-                    del historicjson_body
+        del json_body
+        del client
+    else:
+        print 'Error checking power usage for {}. Error code was {}.'.format(alias, errorcode)
 
-                    break
-                except ValueError, v:
-                    print 'Error querying historic usage for {}. Count:{}. Error: {}'.format(alias, count, v.message)
-
-            del json_body
-            del client
-        else:
-            print 'Error checking power usage for {}. Error code was {}.'.format(alias, errorcode)
-
-        del usagejson
-        del usageresult
-        del sysinfojson
-        del sysinforesult
-
-    except socket.error, v:
-        print 'Skipping {}:{} due to error: {}'.format(ip, port, v.message)
+    del usagejson
+    del usageresult
+    del sysinfojson
+    del sysinforesult
 
 
 def printError(failure):
