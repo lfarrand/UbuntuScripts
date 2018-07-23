@@ -1,4 +1,4 @@
-!/bin/bash
+#!/bin/bash
 
 TOKEN="u7dFzDkMuMkyzbvLdYRAdfGJol2u8Erk"  # The API v2 OAuth token
 ACCOUNT_ID="1998"        # Replace with your account ID
@@ -6,6 +6,10 @@ ZONE_ID="thefarrands.com"  # The zone ID is the name of the zone (or domain)
 RECORD_ID="14265691"       # Replace with the Record ID
 WANIP=$(ifconfig pppoe-wan | grep "inet addr" | cut -d ':' -f 2 | cut -d ' ' -f 1)
 DNSIP=$(dig +short @ns1.dnsimple.com home.thefarrands.com)
+
+CURRENTTIME="`date "+%Y-%m-%d %H:%M:%S"`";
+
+echo "Checking DDNS at $CURRENTTIME"
 
 echo WAN: $WANIP
 echo IP: $DNSIP
@@ -23,3 +27,6 @@ then
 else
         echo "WAN IP is same as DNS record, no need to update."
 fi
+
+echo "Finished"
+echo ""
