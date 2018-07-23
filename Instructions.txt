@@ -19,6 +19,7 @@ sudo systemctl enable hardwarestats.service
 
 systemctl daemon-reload
 
+sudo systemctl status sabnzbd.service
 sudo systemctl status couchpotato.service
 sudo systemctl status sonarr.service
 sudo systemctl status neststats.service
