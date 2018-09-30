@@ -6,8 +6,8 @@
 
 WiFiClient client;
 
-IPAddress ip(192,168,0,146);
-int pollIntervalSecs = 1;
+IPAddress ip(192,168,123,90);
+int pollIntervalSecs = 10;
 
 // Data wire is plugged into pin 2 on the Arduino
 #define ONE_WIRE_BUS 2
@@ -47,7 +47,7 @@ void loop() {
 }
 
 void connectWifi() {
-  char ssid[] = "ASUS";
+  char ssid[] = "Wrt32x-2.4G";
   char pass[] = "hhey9huk";
   int keyIndex = 0;
 
