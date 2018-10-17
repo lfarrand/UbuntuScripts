@@ -1,0 +1,17 @@
+[Unit]
+Description=Radarr Daemon
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lee
+Group=lee
+Type=simple
+ExecStart=/usr/bin/mono --debug /opt/Radarr/Radarr.exe /nobrowser /data=/var/radarr
+TimeoutStopSec=20
+KillMode=process
+Restart=on-failure
+RestartSec=15
+
+[Install]
+WantedBy=multi-user.target
