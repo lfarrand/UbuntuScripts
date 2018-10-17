@@ -9,6 +9,7 @@ sudo cp deluge-web.service /etc/systemd/system/deluge-web.service
 sudo cp powermetrics.service /etc/systemd/system/powermetrics.service
 sudo cp neststats.service /etc/systemd/system/neststats.service
 sudo cp hardwarestats.service /etc/systemd/system/hardwarestats.service
+sudo cp contrib/nzbhydra.service /etc/systemd/system
 
 sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
