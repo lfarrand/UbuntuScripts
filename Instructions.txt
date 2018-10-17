@@ -10,6 +10,7 @@ sudo cp powermetrics.service /etc/systemd/system/powermetrics.service
 sudo cp neststats.service /etc/systemd/system/neststats.service
 sudo cp hardwarestats.service /etc/systemd/system/hardwarestats.service
 sudo cp contrib/nzbhydra.service /etc/systemd/system
+sudo cp radarr.service /etc/systemd/system/radarr.service
 
 sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
@@ -17,6 +18,7 @@ sudo systemctl enable sonarr.service
 sudo systemctl enable powermetrics.service
 sudo systemctl enable neststats.service
 sudo systemctl enable hardwarestats.service
+sudo systemctl enable radarr.service
 
 systemctl daemon-reload
 
@@ -25,12 +27,14 @@ sudo systemctl status couchpotato.service
 sudo systemctl status sonarr.service
 sudo systemctl status neststats.service
 sudo systemctl status hardwarestats.service
+sudo systemctl status radarr.service
 
 If necessary to restart services, use:
 sudo systemctl restart couchpotato.service
 sudo systemctl restart sabnzbd.service
 sudo systemctl restart sonarr.service
 sudo systemctl restart powermetrics.service
+sudo systemctl restart radarr.service
 
 To test restarting automatically, use:
 sudo systemctl restart couchpotato.service
