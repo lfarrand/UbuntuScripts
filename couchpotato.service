@@ -6,8 +6,8 @@ After=network-online.target
 [Service]
 User=lee
 Group=lee
-Type=forking
-ExecStart=/usr/bin/python /git/CouchPotatoServer/CouchPotato.py --daemon --data_dir /var/couchpotato --config_file /etc/couchpotato/couchpotato.ini
+Type=simple
+ExecStart=/home/lee/git/CouchPotatoServer/CouchPotato.py --data_dir /var/couchpotato --config_file /etc/couchpotato/couchpotato.ini
 Restart=always
 RestartSec=3
 
