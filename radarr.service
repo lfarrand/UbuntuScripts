@@ -7,11 +7,12 @@ After=network-online.target
 User=lee
 Group=lee
 Type=simple
-ExecStart=/usr/bin/mono --debug /opt/Radarr/Radarr.exe /nobrowser /data=/var/radarr
-TimeoutStopSec=20
-KillMode=process
-Restart=on-failure
+ExecStart=/usr/bin/mono --debug Radarr.exe /nobrowser /data=/var/radarr
+WorkingDirectory=/opt/Radarr/
+Restart=always
 RestartSec=15
+TimeoutStopSec=20
+SyslogIdentifier=radarr
 
 [Install]
 WantedBy=multi-user.target
