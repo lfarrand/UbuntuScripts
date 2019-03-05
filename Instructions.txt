@@ -11,6 +11,7 @@ sudo cp neststats.service /etc/systemd/system/neststats.service
 sudo cp hardwarestats.service /etc/systemd/system/hardwarestats.service
 sudo cp contrib/nzbhydra.service /etc/systemd/system
 sudo cp radarr.service /etc/systemd/system/radarr.service
+sudo cp jackett.service /etc/systemd/system/jackett.service
 
 sudo systemctl enable couchpotato.service
 sudo systemctl enable sabnzbd.service
