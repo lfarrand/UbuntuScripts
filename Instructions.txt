@@ -20,6 +20,7 @@ sudo systemctl enable powermetrics.service
 sudo systemctl enable neststats.service
 sudo systemctl enable hardwarestats.service
 sudo systemctl enable radarr.service
+sudo systemctl enable jackett.service
 
 systemctl daemon-reload
 
@@ -29,6 +30,7 @@ sudo systemctl status sonarr.service
 sudo systemctl status neststats.service
 sudo systemctl status hardwarestats.service
 sudo systemctl status radarr.service
+sudo systemctl status jackett.service
 
 If necessary to restart services, use:
 sudo systemctl restart couchpotato.service
@@ -36,6 +38,7 @@ sudo systemctl restart sabnzbd.service
 sudo systemctl restart sonarr.service
 sudo systemctl restart powermetrics.service
 sudo systemctl restart radarr.service
+sudo systemctl restart jackett.service
 
 To test restarting automatically, use:
 sudo systemctl restart couchpotato.service
