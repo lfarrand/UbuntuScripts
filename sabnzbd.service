@@ -9,7 +9,9 @@ Group=lee
 Type=forking
 ExecStart=/usr/bin/sabnzbdplus --config-file /etc/sabnzbd/sabnzbd.ini --logging 1 --daemon
 Restart=always
-RestartSec=3
+RestartSec=15
+TimeoutStopSec=20
+SyslogIdentifier=sabnzbdplus
 
 [Install]
 WantedBy=multi-user.target

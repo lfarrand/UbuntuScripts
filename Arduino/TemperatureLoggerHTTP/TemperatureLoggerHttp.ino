@@ -1,23 +1,24 @@
 #include <SPI.h>
 #include <WiFi.h>
-#include <WiFiUdp.h>
 #include <OneWire.h>
 #include <DallasTemperature.h>
+#include <ArduinoHttpClient.h>
 
-WiFiClient client;
-
-IPAddress ip(192,168,0,146);
-int pollIntervalSecs = 1;
+char serverAddress[] = "192.168.123.90";
+int port = 8086;
+WiFiClient wifiClient;
+HttpClient httpClient = HttpClient(wifiClient, serverAddress, port);
+String response;
+int statusCode = 0;
+String authData = "Basic bGVlOkhoZXk5aHVr";
+int pollIntervalSecs = 10;
 
 // Data wire is plugged into pin 2 on the Arduino
 #define ONE_WIRE_BUS 2
-// Setup a oneWire instance to communicate with any OneWire devices (not just Maxim/Dallas temperature ICs)
 OneWire oneWire(ONE_WIRE_BUS);
-// Pass our oneWire reference to Dallas Temperature. 
 DallasTemperature sensors(&oneWire);
 
 void setup() {
-  //Initialize serial and wait for port to open:
   Serial.begin(9600);
   while (!Serial) {
     ; // wait for serial port to connect. Needed for native USB port only
@@ -53,7 +54,7 @@ void loop() {
 }
 
 void connectWifi() {
-  char ssid[] = "ASUS";
+  char ssid[] = "Wrt32x-2.4G";
   char pass[] = "hhey9huk";
   int keyIndex = 0;
 
@@ -87,43 +88,39 @@ void logTemperature() {
   topTempLine = String("hotwater,location=top temperature=" + String(topTemp, 2));
   bottomTempLine = String("hotwater,location=bottom temperature=" + String(bottomTemp, 2));
 
-  String postData=topTempLine + "\r\n" + bottomTempLine;
+  String postData=topTempLine + "\n" + bottomTempLine;
   
   Serial.println("Starting connection to server...");
-  
-  if (client.connect(ip, 8086)) {
-    Serial.println("Connected to server");
 
-    Serial.println("POST /write?db=metrics HTTP/1.1");
-    Serial.println("Host: 192.168.0.146:8086");
-    Serial.println("Authorization: Basic bGVlOkhoZXk5aHVr");
-    Serial.println("User-Agent: Arduino");
-    Serial.println("Accept: */*");
-    Serial.print("Content-Length: ");
-    Serial.println(postData.length());
-    Serial.println("Content-Type: application/x-www-form-urlencoded");
-    Serial.println();
-    Serial.println(postData);
-    Serial.println();
-    
-    client.println("POST /write?db=metrics HTTP/1.1");
-    client.println("Host: 192.168.0.146:8086");
-    client.println("Authorization: Basic bGVlOkhoZXk5aHVr");
-    client.println("User-Agent: Arduino");
-    client.println("Accept: */*");
-    client.print("Content-Length: ");
-    client.println(postData.length());
-    client.println("Content-Type: application/x-www-form-urlencoded");    
-    client.println();
-    client.println(postData);
-    client.println();
-    client.flush();
-    client.stop();
-    
-    Serial.println("Sent metrics");
-  }
+  httpPost("/write?db=metrics", "application/x-www-form-urlencoded", postData);
  
   Serial.println();
+}
+
+void httpPost( String path, String contentType, String postData)
+{
+  Serial.println("Making POST request");
+  Serial.println("Post data: ");
+  Serial.println(postData);
+
+  httpClient.beginRequest();
+  httpClient.post(path);
+  httpClient.sendHeader("Authorization", authData);
+  httpClient.sendHeader("Content-Type", contentType);
+  httpClient.sendHeader("Content-Length", postData.length());
+  httpClient.endRequest();
+  httpClient.print(postData);
+
+  statusCode = httpClient.responseStatusCode();
+  response = httpClient.responseBody();
+
+  httpClient.flush();
+  httpClient.stop();
+
+  Serial.print("Status code: ");
+  Serial.println(statusCode);
+  Serial.print("Response: ");
+  Serial.println(response);
 }
 
 void printWifiStatus() {
@@ -138,7 +135,7 @@ void printWifiStatus() {
 
   // print the received signal strength:
   long rssi = WiFi.RSSI();
-  Serial.print("signal strength (RSSI):");
+  Serial.print("Signal strength (RSSI):");
   Serial.print(rssi);
   Serial.println(" dBm");
 }

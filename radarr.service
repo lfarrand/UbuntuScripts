@@ -1,5 +1,5 @@
 [Unit]
-Description=Sonarr Service
+Description=Radarr Daemon
 Wants=network-online.target
 After=network-online.target
 
@@ -7,12 +7,12 @@ After=network-online.target
 User=lee
 Group=lee
 Type=simple
-ExecStart=/usr/bin/mono NzbDrone.exe /data=/var/sonarr
-WorkingDirectory=/opt/NzbDrone/
+ExecStart=/usr/bin/mono --debug Radarr.exe /nobrowser /data=/var/radarr
+WorkingDirectory=/opt/Radarr/
 Restart=always
 RestartSec=15
 TimeoutStopSec=20
-SyslogIdentifier=sonarr
+SyslogIdentifier=radarr
 
 [Install]
 WantedBy=multi-user.target
