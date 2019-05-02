@@ -7,16 +7,17 @@ import time
 
 version = 1.0
 powerPlugAddresses = [
-    ['Garage', '192.168.0.215'],
-    ['Tumble Dryer', '192.168.0.244'],
-    ['TV', '192.168.0.122'],
-    ['Study', '192.168.0.140'],
-    ['Dishwasher', '192.168.0.189'],
-    ['Washing Machine', '192.168.0.172'],
-    ['Under Stairs Cupboard', '192.168.0.177'],
-    ['Quooker Tap', '192.168.0.247'],
-    ['Fridge', '192.168.0.119'],
-    ['Miner', '192.168.0.102']
+    ['Dishwasher', '192.168.123.142'],
+    ['Fridge', '192.168.123.143'],
+    ['Garage', '192.168.123.235'],
+    ['Garage Computer', '192.168.123.240'],
+    ['Garage Dehumidifier', '192.168.123.166'],
+    ['Quooker Tap', '192.168.123.145'],
+    ['Study', '192.168.123.146'],
+    ['Train Track', '192.168.123.217'],
+    ['Tumble Dryer', '192.168.123.156'],
+    ['TV', '192.168.123.131'],
+    ['Washing Machine', '192.168.123.157']
 ]
 
 parser = argparse.ArgumentParser(description="TP-Link Wi-Fi Smart Plug Monitoring Client v" + str(version))
