@@ -1,0 +1,18 @@
+[Unit]
+Description=Lidarr Daemon
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=lidarr
+Group=lidarr
+Type=simple
+ExecStart=/usr/bin/mono --debug Lidarr.exe /nobrowser /data=/var/lidarr
+WorkingDirectory=/opt/Lidarr/
+Restart=always
+RestartSec=15
+TimeoutStopSec=20
+SyslogIdentifier=lidarr
+
+[Install]
+WantedBy=multi-user.target
