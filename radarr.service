@@ -4,8 +4,8 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-User=lee
-Group=lee
+User=radarr
+Group=radarr
 Type=simple
 ExecStart=/usr/bin/mono --debug Radarr.exe /nobrowser /data=/var/radarr
 WorkingDirectory=/opt/Radarr/

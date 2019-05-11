@@ -9,7 +9,7 @@ sudo cp deluge-web.service /etc/systemd/system/deluge-web.service
 sudo cp powermetrics.service /etc/systemd/system/powermetrics.service
 sudo cp neststats.service /etc/systemd/system/neststats.service
 sudo cp hardwarestats.service /etc/systemd/system/hardwarestats.service
-sudo cp contrib/nzbhydra.service /etc/systemd/system
+sudo cp nzbhydra2.service /etc/systemd/system/nzbhydra2.service
 sudo cp radarr.service /etc/systemd/system/radarr.service
 sudo cp jackett.service /etc/systemd/system/jackett.service
 
@@ -21,6 +21,7 @@ sudo systemctl enable neststats.service
 sudo systemctl enable hardwarestats.service
 sudo systemctl enable radarr.service
 sudo systemctl enable jackett.service
+sudo systemctl enable nzbhydra2.service
 
 systemctl daemon-reload
 
@@ -31,6 +32,7 @@ sudo systemctl status neststats.service
 sudo systemctl status hardwarestats.service
 sudo systemctl status radarr.service
 sudo systemctl status jackett.service
+sudo systemctl status nzbhydra2.service
 
 If necessary to restart services, use:
 sudo systemctl restart couchpotato.service
